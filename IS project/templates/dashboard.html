@@ -1,0 +1,80 @@
+<!-- Project: Digital Signature System - Dashboard Page -->
+<!-- File: templates/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .card a {
+            text-decoration: none;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .card:hover {
+            background-color: #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Welcome to Digital Signature System</h1>
+    </div>
+    <div class="container">
+        <h2>Dashboard</h2>
+        <div class="grid">
+            <div class="card">
+                <a href="/upload">Upload & Sign Document</a>
+            </div>
+            <div class="card">
+                <a href="/documents">My Signed Documents</a>
+            </div>
+            <div class="card">
+                <a href="/shared" class="btn">Shared With Me</a>
+
+            </div>
+            <div class="card">
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

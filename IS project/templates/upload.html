@@ -1,0 +1,132 @@
+<!-- Project: Digital Signature System - Upload Page -->
+<!-- File: templates/upload.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & Sign Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="file"],
+        button {
+            padding: 12px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-top: 20px;
+            color: green;
+            font-weight: bold;
+            text-align: center;
+        }
+        .details {
+            background-color: #e7f3e7;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 15px;
+            word-wrap: break-word; /* This ensures long content wraps inside the box */
+            overflow-wrap: break-word; /* Ensures wrapping works properly for all browsers */
+        }
+        
+        .details strong {
+            display: inline-block;
+            width: 140px;
+        }
+        .floating-back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            transition: background-color 0.3s ease;
+        }
+        
+        .floating-back-button:hover {
+            background-color: #1976D2;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Upload & Digitally Sign Document</h1>
+    </div>
+    <div class="container">
+        <h2>Upload and Sign</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label>Select Document:</label>
+            <input type="file" name="document" required>
+            <button type="submit">Upload & Sign</button>
+        </form>
+
+        {% if message %}
+            <div class="status">{{ message }}</div>
+        {% endif %}
+
+        {% if public_key and r and s %}
+        <div class="details">
+            <h3>Signature Details</h3>
+            <p><strong>Document Name:</strong> {{ filename }}</p>
+            <p><strong>Timestamp:</strong> {{ timestamp }}</p>
+            <p><strong>Public Key:</strong> {{ public_key }}</p>
+            <p><strong>R Value:</strong> {{ r }}</p>
+            <p><strong>S Value:</strong> {{ s }}</p>
+        </div>
+        {% endif %}
+    </div>
+    <a href="/dashboard" class="floating-back-button">← Dashboard</a>
+</body>
+</html>
+
+<!-- Flask route for /upload will:
+1. Save file locally
+2. Generate DSA key if not present
+3. Hash and sign file
+4. Store file, signature, metadata in MySQL
+5. Show confirmation and keys/signature values on this page -->

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Documents</title>
+    <style>
+
+        .floating-back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            transition: background-color 0.3s ease;
+        }
+        
+        .floating-back-button:hover {
+            background-color: #1976D2;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        a.button {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        a.button:hover {
+            background-color: #45a049;
+        }
+        .actions {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            background-color: white;
+            border: 2px solid #4CAF50;
+            padding: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        .popup p {
+            word-wrap: break-word;
+            max-width: 600px;
+        }
+        .popup button {
+            margin-top: 15px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .popup button:hover {
+            background-color: #d32f2f;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>My Signed Documents</h1>
+    </div>
+    <div class="container">
+        <h2>Uploaded & Signed Documents</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th>Upload Date</th>
+                    <th>R Value</th>
+                    <th>S Value</th>
+                    <th>Public Key</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc[1] }}</td>
+                    <td>{{ doc[2] }}</td>
+                    <td class="clickable" data-full="R Value: {{ doc[3] }}">{{ doc[3] }}</td>
+                    <td class="clickable" data-full="S Value: {{ doc[4] }}">{{ doc[4] }}</td>
+                    
+                    <td class="clickable" data-full="Public Key: {{ doc[5] }}">{{ doc[5][:30] }}...</td>
+
+
+                    <td class="actions">
+                        <a href="javascript:void(0);" onclick="verifyDocument('{{ doc[1] }}')" class="button">Verify</a>
+                        <a href="javascript:void(0);" onclick="openShareModal('{{ doc[0] }}')" class="button">Share</a>
+
+
+                      
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <h3>Full Value</h3>
+        <p id="popupContent"></p>
+        <button onclick="hidePopup()">Close</button>
+    </div>
+
+    <div class="overlay" id="shareOverlay"></div>
+    <div class="popup" id="sharePopup">
+        <h3>Share Document</h3>
+        <form id="shareForm">
+            <input type="hidden" name="document_name" id="shareDocumentName">
+            <label for="recipient">Select user to share with:</label>
+            <select name="recipient" id="recipientDropdown" required style="margin-top: 10px; width: 100%; padding: 8px;">
+                {% for user in users %}
+                    <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+            <button type="submit" style="background-color: #4CAF50;">Share</button>
+            <button type="button" onclick="closeSharePopup()">Cancel</button>
+        </form>
+        
+    </div>
+    
+
+    <script>
+        document.querySelectorAll('.clickable').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const value = cell.getAttribute('data-full');
+                document.getElementById("popupContent").innerText = value;
+                document.getElementById("popup").style.display = "block";
+                document.getElementById("overlay").style.display = "block";
+            });
+        });
+    
+        function hidePopup() {
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }
+
+        function verifyDocument(filename) {
+            fetch(`/verify/${filename}`)
+                .then(response => response.json())
+                .then(data => {
+                    showPopup(data.message);
+                })
+                .catch(error => {
+                    showPopup("Error: Could not verify document.");
+                    console.error("Verification error:", error);
+                });
+        }
+    
+        function showPopup(message) {
+            document.getElementById("popupContent").innerText = message;
+            document.getElementById("popup").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function openShareModal(docId) {
+            document.getElementById("shareDocumentName").value = docId;
+        
+            // Dynamically set the form action
+            const form = document.querySelector("#sharePopup form");
+            form.action = "/share_document/" + docId;
+        
+            // Show popup
+            document.getElementById("sharePopup").style.display = "block";
+            document.getElementById("shareOverlay").style.display = "block";
+        }
+        
+    
+        function closeSharePopup() {
+            document.getElementById("sharePopup").style.display = "none";
+            document.getElementById("shareOverlay").style.display = "none";
+        }
+
+
+        document.getElementById("shareForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+        
+            const form = e.target;
+            const docId = document.getElementById("shareDocumentName").value;
+            const recipient = document.getElementById("recipientDropdown").value;
+        
+            fetch(`/share_document/${docId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `recipient=${encodeURIComponent(recipient)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                closeSharePopup();
+                showPopup(data.message);
+            })
+            .catch(err => {
+                closeSharePopup();
+                showPopup("An error occurred while sharing the document.");
+                console.error("Share error:", err);
+            });
+        });
+        
+    </script>
+    <a href="/dashboard" class="floating-back-button">← Dashboard</a>
+ 
+</body>
+</html>

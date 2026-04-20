@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Decryption Result</title>
+</head>
+<body>
+    <h2>Document Decryption</h2>
+    <p>The document "{{ filename }}" has been successfully decrypted.</p>
+    
+    <!-- Option to download the decrypted file -->
+    <a href="/decrypt_shared/{{ doc_id }}?action=download">Download Decrypted File</a>
+
+    <!-- Option to save to a folder (just showing the filename for now) -->
+    <p>The decrypted file has been saved to your folder as: {{ filename }}</p>
+</body>
+</html>

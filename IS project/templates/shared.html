@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documents Shared With You</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            word-wrap: break-word;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        a.button {
+            padding: 8px 14px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        button {
+            padding: 8px 14px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            border: none;
+        }
+
+        .btn-download {
+            background-color: #2196F3;
+        }
+        .btn-download:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-decrypt {
+            background-color: #f44336;
+        }
+        .btn-decrypt:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-verify {
+            background-color: #FF9800;
+        }
+        .btn-verify:hover {
+            background-color: #FB8C00;
+        }
+
+        .floating-back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+        .floating-back-button:hover {
+            background-color: #1976D2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3); /* Slightly lighter overlay */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+.modal-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-body {
+    margin-top: 15px;
+    font-size: 15px;
+    color: #444;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.modal-footer button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-footer button:hover {
+    background-color: #45a049;
+}
+
+.close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background-color: #f44336;
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.close:hover {
+    background-color: #d32f2f;
+}
+
+/* Success and Error Styles */
+.verification-success {
+    color:rgb(10, 10, 10);
+    font-weight: bold;
+}
+
+.verification-error {
+    color: #D32F2F;
+    font-weight: bold;
+}
+
+.verification-icon {
+    font-size: 22px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Smooth fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Documents Shared With You</h1>
+    </div>
+    <div class="container">
+        <h2>Shared Documents</h2>
+        {% if shared_docs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th>Sender</th>
+                    <th>Date Shared</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in shared_docs %}
+                <tr>
+                    <td>{{ doc['original_filename'] }}</td>
+                    <td>{{ doc['sender_username'] }}</td>
+                    <td>{{ doc['shared_date'] }}</td>
+                    <td class="actions">
+                        <a class="button btn-download" href="/download_encrypted/{{ doc['encrypted_filename'] }}">Download</a>
+                        <button class="button btn-decrypt" onclick="decryptDocument({{ doc['id'] }})">Decrypt</button>
+                        <button class="button btn-verify" onclick="verifyDocument({{ doc['id'] }})">Verify</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No documents have been shared with you yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Modal for success/failure message -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Result</h3>
+        </div>
+        <div class="modal-body">
+            <p id="message"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+    <a href="/dashboard" class="floating-back-button">← Back to Dashboard</a>
+
+    <script>
+          // Function to show the modal
+          function showModal(message, type = 'info') {
+            const modal = document.getElementById("modal");
+            const messageElement = document.getElementById("message");
+            
+            // Clear previous classes
+            messageElement.className = '';
+            messageElement.innerHTML = ''; // Clear previous content
+            
+            // Create icon based on type
+            let icon = '';
+            if (type === 'success') {
+                icon = '✓';
+                messageElement.classList.add('verification-success');
+            } else if (type === 'error') {
+                icon = '✗';
+                messageElement.classList.add('verification-error');
+            }
+            
+            // Set message content with icon
+            messageElement.innerHTML = `
+                <span class="verification-icon">${icon}</span>
+                <span>${message}</span>
+            `;
+            
+            // Show modal
+            modal.style.display = "flex";  // Changed to flex to match your modal styling
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // Close modal when clicking the close button
+        document.querySelector('.close').addEventListener('click', closeModal);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById("modal")) {
+                closeModal();
+            }
+        });
+
+        function decryptDocument(sharedDocId) {
+            fetch(`/decrypt_document/${sharedDocId}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    }
+                    return response.json().then(err => Promise.reject(err));
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `decrypted_document_${sharedDocId}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showModal("Document decrypted and downloaded successfully!", 'success');
+                })
+                .catch(error => {
+                    const message = error.error || "Failed to decrypt document";
+                    showModal(message, 'error');
+                });
+        }
+
+        function verifyDocument(sharedDocId) {
+            fetch(`/verify_shared/${sharedDocId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showModal(data.error, 'error');
+                    } else {
+                        showModal(data.message, data.status);
+                    }
+                })
+                .catch(error => {
+                    showModal("Failed to verify document: " + error.message, 'error');
+                });
+        }
+    </script>
+</body>
+</html>
